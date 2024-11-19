@@ -1,0 +1,751 @@
+/* src/App.css */
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+.notes-container {
+  flex-grow: 1; /* Make the notes container take the rest of the space */
+  padding: 20px;
+  overflow-y: auto; /* Scroll if content overflows */
+  box-sizing: border-box; /* Ensure padding is included in width calculations */
+}
+
+.notes-container.grid-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-gap: 20px;
+}
+
+.notes-container.list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.notes-container.grid-view .note-meta {
+  position: absolute;
+  bottom: 0px;
+  left: 0;
+  right: 0;
+  font-size: 12px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end; /* Aligns the text to the right */
+  padding: 5px;
+}
+
+.notes-container.grid-view .note-meta > span {
+  background-color: #aaa;
+  padding: 6px 10px;
+  border-radius: 0.4rem;
+}
+
+.notes-container.list-view.note-meta {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  font-size: 12px;
+  color: #888;
+  display: flex;
+  flex-direction: row; /* Aligns the meta content in a vertical stack */
+  align-items: flex-end; /* Aligns the text to the right */
+}
+.notes-container .grid-view .note-meta span {
+  margin-bottom: 5px; /* Adds space between "Created" and "Modified" timestamps */
+}
+.notes-container .list-view .note-meta span {
+  margin-bottom: 5px; /* Adds space between "Created" and "Modified" timestamps */
+  margin-left: 5px;
+}
+
+/* Icon wrapper with circular background */
+.icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  background-color: #f4f4f4;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.icon-wrapper:hover {
+  background-color: #e6e6e6;
+}
+
+/* Icons inside the circle */
+.edit-icon,
+.delete-icon,
+.rename-icon {
+  font-size: 1.25rem;
+  color: #007bff;
+  transition: color 0.3s ease;
+}
+
+/* Hover effect on icons */
+.icon-wrapper:hover .edit-icon,
+.icon-wrapper:hover .delete-icon,
+.rename-icon:hover {
+  color: #0056b3;
+}
+
+/* Disabled delete icon styling */
+.delete-icon.disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.folder-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.folder-header:hover {
+  background-color: #e6e6e6;
+  border-color: #999;
+}
+
+/* Align folder name and chevron icon */
+.folder-details {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-grow: 1; /* Make folder name take the full available width */
+}
+
+/* Chevron (expand/collapse) icon */
+.expand-icon {
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+/* Folder link */
+.sidebar a {
+  display: inline-block;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.sidebar a.active {
+  color: #007bff;
+}
+
+.sidebar input {
+  width: 80%; /* Limit input width to fit within folder header */
+  padding: 8px;
+  border: 1px solid #007bff;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.rename-icon {
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+/* Transition effect for subfolder expansion */
+.subfolders-enter {
+  max-height: 0;
+}
+
+.subfolders-enter-active {
+  max-height: 500px; /* Arbitrary large value to allow smooth expansion */
+  transition: max-height 0.3s ease-in;
+}
+
+.subfolders-exit {
+  max-height: 500px;
+}
+
+.subfolders-exit-active {
+  max-height: 0;
+  transition: max-height 0.3s ease-out;
+}
+.selected {
+  background-color: #007bff; /* Blue background */
+  color: white; /* White text */
+  border-radius: 5px; /* Rounded corners */
+  padding: 10px; /* Add some padding */
+}
+
+/* Optional: Add hover effect for the folder links */
+.folder-link {
+  display: block;
+  padding: 10px 15px;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.folder-link:hover {
+  background-color: #f0f0f0; /* Light gray on hover */
+  color: #000; /* Darker text on hover */
+}
+
+/* Active/selected state */
+.folder-link.selected:hover {
+  background-color: #0062cc; /* Slightly darker blue on hover */
+}
+
+.notes-list {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  width: 100%; /* Ensure the notes list takes full width */
+  box-sizing: border-box; /* Include padding in the element's total width */
+}
+
+.notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.add-note-button {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+.new-note-box {
+  margin-top: 20px;
+  width: 100%; /* Ensure the new note box takes full width */
+}
+
+.new-note-box textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.save-note-button,
+.cancel-note-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.update-note-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.cancel-note-button {
+  background-color: #999;
+}
+
+.notes-grid {
+  display: grid; /* Use CSS Grid to structure notes */
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(300px, 1fr)
+  ); /* Create responsive grid */
+  grid-gap: 20px; /* Space between notes */
+  margin-top: 20px;
+  width: 100%; /* Take up full width of container */
+  box-sizing: border-box;
+}
+
+.note-meta {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #888;
+}
+
+.note-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.edit-icon,
+.delete-icon {
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.edit-icon {
+  color: #007bff;
+}
+
+.delete-icon {
+  color: #999;
+}
+
+.note-edit textarea {
+  width: 100%;
+  height: 100px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+  gap: 15px;
+}
+
+.save-icon,
+.cancel-icon {
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.save-icon {
+  color: #28a745;
+}
+
+.cancel-icon {
+  color: #999;
+}
+
+.layout-toggle-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.note-editor {
+  padding: 20px;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.note-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.note-content {
+  font-size: 16px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+textarea {
+  width: 100%;
+  height: 300px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+button {
+  padding: 10px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #ccc;
+}
+
+.back-button {
+  background-color: #007bff;
+}
+
+.save-note {
+  background-color: #4caf50;
+}
+
+.note-content {
+  margin-bottom: 40px; /* Adds space at the bottom to accommodate note-meta */
+  white-space: pre-wrap;
+}
+
+.folder-item .folder-link {
+  text-decoration: none;
+  color: #333;
+  padding: 10px 15px; /* Added padding for entire folder item */
+  display: block;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.folder-item .folder-link:hover {
+  background-color: #e0e0e0;
+  color: #000;
+}
+
+/* Selected folder style */
+.folder-item .selected {
+  background-color: #999;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds a slight shadow */
+  padding-left: 15px; /* Ensures padding covers the entire element */
+}
+
+.folder-item .selected:hover {
+  background-color: #7b7878; /* Darken on hover */
+}
+
+/* Folder icon and text spacing */
+.folder-header {
+  display: flex;
+  align-items: center;
+}
+
+.folder-header .expand-icon {
+  cursor: pointer;
+  margin-right: 8px;
+  color: #007bff;
+}
+
+.folder-header .rename-icon {
+  margin-left: auto;
+  cursor: pointer;
+  color: #007bff;
+}
+
+/* Icon hover effect */
+.folder-header .rename-icon:hover {
+  color: #0056b3;
+}
+
+.icon-group .icon-wrapper {
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+/* Disabled delete icon */
+.delete-icon.disabled {
+  color: #ccc;
+}
+
+/* Sidebar Container */
+/* Sidebar Container */
+.sidebar {
+  min-width: 300px;
+  max-width: 400px;
+  height: 100vh;
+  background-color: #f8f9fa;
+  padding-top: 20px;
+  top: 0;
+  left: 0;
+  border-right: 1px solid #dee2e6;
+  transition: width 0.3s;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  padding: 20px;
+  flex-direction: column;
+  position: relative;
+  overflow-y: auto;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  color: #343a40;
+  padding: 10px;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+/* Folder List */
+ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+/* Folder Item */
+.folder-item {
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  color: #495057;
+  list-style: none;
+  margin-bottom: 5px;
+}
+
+/* Indentation for subfolders */
+.subfolders {
+  padding-left: 20px; /* Indent subfolders */
+  list-style: none;
+  margin: 0;
+  padding-top: 5px; /* Add space between parent and subfolders */
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+}
+
+/* Folder Links */
+.folder-link {
+  color: #495057; /* Bootstrap text color */
+  text-decoration: none;
+  font-size: 1rem;
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 5px;
+}
+
+.folder-link:hover {
+  background-color: #e9ecef; /* Light hover effect */
+  color: #343a40;
+}
+
+.select-folder-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
+  font-size: 25px;
+  color: #555;
+}
+
+.selected {
+  background-color: #e2e6ea; /* Darker selection */
+  color: #343a40;
+  font-weight: bold;
+}
+
+/* Rename Icon */
+.rename-icon {
+  color: #adb5bd;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.rename-icon:hover {
+  color: #495057;
+}
+
+/* Icon Group */
+.icon-group {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  gap: 15px;
+}
+
+.icon-group button {
+  background-color: transparent; /* Transparent background for buttons */
+  border: none;
+  color: #495057;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.icon-group button:hover {
+  background-color: #e9ecef; /* Light background on hover */
+  color: #343a40;
+}
+
+.icon-group button:disabled {
+  background-color: transparent;
+  color: #adb5bd;
+  cursor: not-allowed;
+}
+
+.icon-group .add-folder-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 1rem;
+  color: #495057;
+}
+
+.add-folder-btn:hover {
+  color: #343a40;
+}
+
+/* Responsive Sidebar */
+/* @media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+
+  .folder-link {
+    padding: 10px 20px;
+  }
+} */
+
+/* Folder Item Hover */
+.folder-item:hover {
+  background-color: #e9ecef;
+  border-radius: 5px;
+}
+
+.error-msg {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.no-notes-message {
+  height: 100vh;
+}
+
+.card {
+  border: none;
+  background-color: #f8f9fa; /* Light background for card */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for card */
+  text-align: center;
+}
+
+.card h5 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.notes-header {
+  padding: 10px 0;
+}
+
+.new-note-box textarea {
+  height: 100px;
+  resize: none;
+}
+
+.notes-container {
+  display: grid;
+  gap: 20px;
+}
+
+.grid-view {
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+.list-view {
+  grid-template-columns: 1fr;
+}
+
+.form-control {
+  font-size: 1rem;
+  padding: 10px;
+}
+
+.note-card {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 2rem;
+  transition: box-shadow 0.3s;
+  /* box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px; */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.note-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn {
+  font-size: 1rem;
+}
+
+.btn-outline-primary {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.list-folder-items {
+  padding-left: 0;
+}
+
+.sidebar {
+  min-width: 250px; /* Minimum width for the sidebar */
+  max-width: 350px; /* Maximum width for the sidebar */
+  height: 100vh; /* Full height */
+  background-color: #f8f9fa; /* Light background */
+  padding: 20px;
+  border-right: 1px solid #dee2e6; /* Right border */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+  overflow-y: auto; /* Enable scrolling if content overflows */
+  transition: transform 0.3s ease; /* Smooth transition for hiding/showing */
+}
+
+/* Hide sidebar off-screen */
+.sidebar.hidden {
+  transform: translateX(-100%); /* Move sidebar out of view */
+}
+
+/* Media Queries for Smaller Screens */
+@media (max-width: 768px) {
+  .sidebar {
+      position: fixed; /* Fix sidebar position on smaller screens */
+      width: 100%; /* Full width */
+      z-index: 1000; /* Ensure it is on top of other elements */
+      border-right: none; /* Remove right border on mobile */
+  }
+
+  .sidebar.hidden {
+      transform: translateX(-100%); /* Hide the sidebar */
+  }
+}
