@@ -1,109 +1,142 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, fireEvent, screen, waitFor } from "@testing-library/react";
 import Sidebar from "../Sidebar";
-import { FolderProvider } from "../../Contexts/FolderContext";
-import { Folder } from "../../types"; 
+import { useFolderContext } from "../../Contexts/FolderContext";
+import { Folder } from "../../types";
 
-// Mock the necessary context methods
+// Mock useFolderContext
 jest.mock("../../Contexts/FolderContext", () => ({
-  useFolderContext: () => ({
-    folders: [
-      { id: "1", name: "Folder 1" },
-      { id: "2", name: "Folder 2" },
-    ],
-    selectedFolderId: null,
+  useFolderContext: jest.fn(),
+}));
+
+describe("Sidebar Component", () => {
+  const mockFolders: Folder[] = [
+    { id: "1", name: "Folder 1",parentFolderId: null },
+    { id: "2", name: "Folder 2", parentFolderId: null },
+  ];
+
+  const mockContext = {
+    folders: mockFolders,
+    selectedFolderId: "1",
     setSelectedFolderId: jest.fn(),
-    addFolder: jest.fn(),
+    addFolder: jest.fn().mockResolvedValue({ id: "3", name: "New Folder" }),
     renameFolder: jest.fn(),
     editingFolderId: null,
     setEditingFolderId: jest.fn(),
     fetchDeletedNotes: jest.fn(),
     setDeletedNotes: jest.fn(),
-    deleteFolder: jest.fn(),
+    deleteFolder: jest.fn().mockResolvedValue(undefined),
     setCurrentNote: jest.fn(),
     moveNote: jest.fn(),
-  }),
-}));
+  };
 
-describe("Sidebar Component", () => {
-  test("adds a new folder when clicking the 'Add Folder' button", async () => {
-    render(
-      <FolderProvider>
-        <Sidebar />
-      </FolderProvider>
-    );
-
-    // Simulate typing a folder name and clicking the add folder button
-    fireEvent.change(screen.getByPlaceholderText("New folder name"), {
-      target: { value: "New Folder" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: /add folder/i }));
-
-    // Wait for folder to be added (mocked function)
-    await waitFor(() => expect(screen.getByText("New Folder")).toBeInTheDocument());
+  beforeEach(() => {
+    (useFolderContext as jest.Mock).mockReturnValue(mockContext);
   });
 
-  test("edits a folder name", async () => {
-    render(
-      <FolderProvider>
-        <Sidebar />
-      </FolderProvider>
-    );
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-    // Click on the edit button for Folder 1
-    fireEvent.click(screen.getAllByRole("button", { name: /edit folder/i })[0]);
+  test("renders the folder list", () => {
+    render(<Sidebar />);
 
-    // Change the folder name and simulate blur event
-    fireEvent.change(screen.getByPlaceholderText("New folder name"), {
-      target: { value: "Updated Folder 1" },
+    const folderItems = screen.getAllByRole("listitem");
+    expect(folderItems).toHaveLength(mockFolders.length);
+    expect(screen.getByText("Folder 1")).toBeInTheDocument();
+    expect(screen.getByText("Folder 2")).toBeInTheDocument();
+  });
+
+  test("adds a new folder", async () => {
+    render(<Sidebar />);
+
+    const addButton = screen.getByTitle("Add Folder");
+    fireEvent.click(addButton);
+
+    await waitFor(() => expect(mockContext.addFolder).toHaveBeenCalled());
+  });
+
+  test("renames a folder", async () => {
+    (useFolderContext as jest.Mock).mockReturnValue({
+      ...mockContext,
+      editingFolderId: "1",
     });
-    fireEvent.blur(screen.getByPlaceholderText("New folder name"));
 
-    // Wait for the folder name to be updated
-    await waitFor(() => expect(screen.getByText("Updated Folder 1")).toBeInTheDocument());
+    render(<Sidebar />);
+
+    const input = screen.getByPlaceholderText("New folder name");
+    fireEvent.change(input, { target: { value: "Renamed Folder" } });
+    fireEvent.blur(input);
+
+    await waitFor(() =>
+      expect(mockContext.renameFolder).toHaveBeenCalledWith("1", "Renamed Folder")
+    );
   });
 
   test("deletes a folder", async () => {
-    render(
-      <FolderProvider>
-        <Sidebar />
-      </FolderProvider>
-    );
+    render(<Sidebar />);
 
-    // Click the "Delete Folder" button (make sure it's enabled)
-    fireEvent.click(screen.getByRole("button", { name: /delete folder/i }));
+    const deleteButton = screen.getByTitle("Delete folder");
+    fireEvent.click(deleteButton);
 
-    // Ensure that deleteFolder was called (mocked function)
-    await waitFor(() => expect(screen.getByRole("button", { name: /delete folder/i })).toBeDisabled());
+    await waitFor(() => expect(mockContext.deleteFolder).toHaveBeenCalledWith("1"));
   });
 
-  test("recycle bin button fetches deleted notes", async () => {
-    render(
-      <FolderProvider>
-        <Sidebar />
-      </FolderProvider>
-    );
-
-    // Click the Recycle Bin button
-    fireEvent.click(screen.getByRole("button", { name: /recycle/i }));
-
-    // Check that the fetchDeletedNotes function was called
-    await waitFor(() => expect(screen.getByRole("button", { name: /recycle/i })).toBeInTheDocument());
-  });
-
-  test("selects a folder when clicked", async () => {
-    render(
-      <FolderProvider>
-        <Sidebar />
-      </FolderProvider>
-    );
-
-    // Click on Folder 1
-    fireEvent.click(screen.getByText("Folder 1"));
-
-    // Ensure the folder is selected (selected class should be applied)
-    await waitFor(() => {
-      expect(screen.getByText("Folder 1")).toHaveClass("selected");
+  test("disables delete button when no folder is selected", () => {
+    (useFolderContext as jest.Mock).mockReturnValue({
+      ...mockContext,
+      selectedFolderId: null,
     });
+
+    render(<Sidebar />);
+
+    const deleteButton = screen.getByTitle("Delete folder");
+    expect(deleteButton).toBeDisabled();
+  });
+
+  test("fetches deleted notes when recycle bin is clicked", () => {
+    render(<Sidebar />);
+
+    const recycleBinButton = screen.getByTitle("Recycle Bin");
+    fireEvent.click(recycleBinButton);
+
+    expect(mockContext.fetchDeletedNotes).toHaveBeenCalled();
+  });
+
+  test("sets selected folder when folder is clicked", () => {
+    render(<Sidebar />);
+
+    const folder = screen.getByText("Folder 1");
+    fireEvent.click(folder);
+
+    expect(mockContext.setSelectedFolderId).toHaveBeenCalledWith("1");
+  });
+
+  test("handles drag and drop of notes", () => {
+    render(<Sidebar />);
+
+    const folder = screen.getByText("Folder 1");
+    const mockDataTransfer: Partial<DataTransfer> = {
+      getData: jest.fn(() => "note1"),
+      dropEffect: "move", 
+      effectAllowed: "move", 
+      types: [], 
+      clearData: jest.fn(), 
+      setData: jest.fn(),
+      setDragImage: jest.fn(), 
+    };
+  
+    // Create a custom event with mock dataTransfer
+    const dropEvent = new MouseEvent("drop", {
+      bubbles: true,
+      cancelable: true,
+    });
+    
+    Object.defineProperty(dropEvent, "dataTransfer", {
+      value: mockDataTransfer,
+    });
+  
+    fireEvent(folder, dropEvent);
+    expect(mockDataTransfer.getData).toHaveBeenCalledWith("noteId");
   });
 });

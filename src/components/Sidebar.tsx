@@ -91,7 +91,6 @@ const Sidebar: React.FC = ({}) => {
 
   // Render folders
   const renderFolders = (folders: Folder[]) => {
-    console.log("Folders:", folders); // Log the folders to ensure they contain "New Folder"
 
     return folders.map((folder) => (
       <li
