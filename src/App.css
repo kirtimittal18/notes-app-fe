@@ -35,11 +35,11 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end; /* Aligns the text to the right */
-  padding: 5px;
+  padding: 1rem;
 }
 
-.notes-container.grid-view .note-meta > span {
-  background-color: #aaa;
+.notes-container .note-meta > span {
+  background-color: #0d6efd;
   padding: 6px 10px;
   border-radius: 0.4rem;
 }
@@ -283,7 +283,7 @@
 .note-meta {
   margin-top: 10px;
   font-size: 12px;
-  color: #888;
+  color: #fff;
 }
 
 .note-actions {
