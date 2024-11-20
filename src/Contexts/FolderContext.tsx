@@ -28,6 +28,8 @@ interface FolderContextType {
   deletedNotes: Note[] | null;
   selectedFolderId: string | null;
   setSelectedFolderId: (id: string | null) => void;
+  currentNoteId: string | null;
+  setCurrentNoteId: (id: string | null) => void;
   notes: Note[];
   addFolder: (folderName: string) => Promise<void>;
   editingFolderId: string | null;
@@ -59,6 +61,7 @@ export const FolderProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const [currentNoteId, setCurrentNoteId] = useState<string | null>(null);
   const [deletedNotes, setDeletedNotes] = useState<Note[] | null>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [editingFolderId, setEditingFolderId] = useState<string | null>(null); // Track editing state
@@ -133,6 +136,7 @@ export const FolderProvider: React.FC<{ children: ReactNode }> = ({
         throw new Error("Failed to add note");
       }
       const newNote: Note = response.data;
+      setCurrentNoteId(newNote.id);
       setNotes((prevNotes) => [...prevNotes, newNote]); // Update local state
     } catch (error) {
       console.error("Error adding note:", error);
@@ -148,6 +152,7 @@ export const FolderProvider: React.FC<{ children: ReactNode }> = ({
         throw new Error("Failed to delete note");
       }
       setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
+      setCurrentNoteId(null)
     } catch (error) {
       console.error("Error deleting note:", error);
     }
@@ -228,6 +233,8 @@ export const FolderProvider: React.FC<{ children: ReactNode }> = ({
         folders,
         selectedFolderId,
         setSelectedFolderId,
+        currentNoteId,
+        setCurrentNoteId,
         notes,
         addFolder,
         renameFolder,

@@ -151,6 +151,7 @@ const Sidebar: React.FC = ({}) => {
             onClick={handleAddFolder}
             className="add-folder-btn"
             aria-label="Add folder"
+            title='Add Folder'
           >
             <FontAwesomeIcon icon={faPlus} />
           </button>
@@ -158,10 +159,11 @@ const Sidebar: React.FC = ({}) => {
             onClick={handleDeleteFolder}
             disabled={!selectedFolderId}
             aria-label="Delete folder"
+            title="Delete folder"
           >
             <FontAwesomeIcon icon={faTrash} />
           </button>
-          <button onClick={handleRecycleBinClick}>
+          <button onClick={handleRecycleBinClick} title="Recycle Bin">
             <FontAwesomeIcon icon={faRecycle} className="me-2" />
           </button>
         </div>

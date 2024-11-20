@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useFolderContext } from "../Contexts/FolderContext";
 
 const NoteEditor: React.FC = () => {
@@ -6,6 +6,39 @@ const NoteEditor: React.FC = () => {
   const [editContent, setEditContent] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null); // Error message state
   const { currentNote, setCurrentNote, editNote } = useFolderContext();
+  const [isAutosaving, setIsAutosaving] = useState<boolean>(false);
+  const [isSelected, setIsSelected] = useState(false);
+  const autosave = useCallback(
+    (() => {
+      let timeout: NodeJS.Timeout;
+      return (noteId: string, content: string) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(async () => {
+          if (noteId && content.trim()) {
+            setIsAutosaving(true);
+            await editNote(noteId, content);
+            setTimeout(() => {
+              setIsAutosaving(false); // Hide "Auto-saving..." after delay
+            }, 1000);
+            console.log("Note autosaved!");
+          }
+        }, 1000); // Autosave delay: 3 seconds
+      };
+    })(),
+    [editNote]
+  );
+
+   // Handle content changes
+   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const content = e.target.value;
+    setEditContent(content);
+
+    // Trigger autosave
+    if (currentNote) {
+      autosave(currentNote.id, content);
+    }
+  };
+
 
   // Save the note after editing
   const handleSave = async () => {
@@ -47,24 +80,18 @@ const NoteEditor: React.FC = () => {
           alignItems: "center",
         }}
       >
-        <button
-          onClick={toggleEditMode}
-          className="edit-button"
-          style={{ marginRight: "10px" }}
-        >
-          {editMode ? "Cancel Edit" : "Edit"}
-        </button>
         <button onClick={handleBack} className="back-button">
           ← Back
         </button>
       </div>
 
-      {editMode ? (
+        {isSelected ? (
         <div>
           {errorMessage && <div className="error-msg">{errorMessage}</div>}
           <textarea
-            value={editContent}
-            onChange={(e) => setEditContent(e.target.value)}
+             value={editContent}
+             onBlur={() => setIsSelected(false)}
+             onChange={handleContentChange}
             style={{
               width: "100%",
               height: "300px",
@@ -72,20 +99,28 @@ const NoteEditor: React.FC = () => {
               fontSize: "16px",
             }}
           />
-          <div className="editor-actions" style={{ marginTop: "10px" }}>
-            <button onClick={handleSave} style={{ marginRight: "10px" }}>
-              Save
-            </button>
-          </div>
+          {isAutosaving && (
+            <div
+              style={{
+                marginTop: "5px",
+                fontSize: "14px",
+                fontStyle: "italic",
+                color: "gray",
+              }}
+            >
+              Auto-saving...
+            </div>
+          )}
         </div>
-      ) : (
+      ): (
         <div
           className="note-content"
+          onClick={() => setIsSelected(true)}
           style={{ whiteSpace: "pre-wrap", marginTop: "20px" }}
         >
           {currentNote && currentNote.content}
         </div>
-      )}
+        )}
     </div>
   );
 };
