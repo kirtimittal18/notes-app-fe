@@ -163,15 +163,15 @@ export const Notes: React.FC = ({}) => {
           Select a folder to view notes
         </div>
       )}
-      {notes?.length ? (
+     {notes?.length ? (
         renderNotes(notes)
-      ) : (
+      ) : selectedFolderId ? (
         <div className="d-flex justify-content-center align-items-center no-notes-message">
           <div className="card p-4">
             <h5 className="text-muted">No notes found in this folder.</h5>
           </div>
         </div>
-      )}
+      ) : null}
       {deletedNotes?.length ? renderNotes(deletedNotes) : null}
       <ConfirmationDialog
         show={showConfirmDialog}
