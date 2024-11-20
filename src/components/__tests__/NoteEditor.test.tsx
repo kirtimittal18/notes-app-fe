@@ -1,28 +1,29 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import "@testing-library/jest-dom";
 import NoteEditor from "../NoteEditor";
 import { useFolderContext } from "../../Contexts/FolderContext";
 
-// Mock the useFolderContext hook
 jest.mock("../../Contexts/FolderContext", () => ({
   useFolderContext: jest.fn(),
 }));
 
-describe("NoteEditor Component", () => {
+describe("NoteEditor", () => {
   const mockSetCurrentNote = jest.fn();
   const mockEditNote = jest.fn();
+  const mockNote = {
+    id: "1",
+    content: "Test note content",
+  };
 
   const defaultContext = {
-    currentNote: {
-      id: "1",
-      content: "This is the original note content.",
-    },
+    currentNote: mockNote,
     setCurrentNote: mockSetCurrentNote,
     editNote: mockEditNote,
   };
 
+  // Mock the useFolderContext hook
   beforeEach(() => {
+    // Assert that useFolderContext is treated as a Jest mock
     (useFolderContext as jest.Mock).mockReturnValue(defaultContext);
   });
 
@@ -30,82 +31,76 @@ describe("NoteEditor Component", () => {
     jest.clearAllMocks();
   });
 
-  test("renders note content when not in edit mode", () => {
+  it("renders the current note content", () => {
     render(<NoteEditor />);
-    expect(screen.getByText("This is the original note content.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /edit/i })).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("description", { name: "Note Content" })
+    ).toHaveTextContent("Test note content");
   });
 
-  test("toggles edit mode when edit button is clicked", async () => {
+  it("enters edit mode when the note content is clicked", () => {
     render(<NoteEditor />);
-  
-    // Check initial state: Not in edit mode
-    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
-  
-    // Toggle to edit mode
-    fireEvent.click(screen.getByRole("button", { name: /edit/i }));
-  
-    // Wait for the textarea to appear (since state change triggers re-render)
-    const textarea = await screen.findByRole("textbox");  // Changed role to "textbox"
+
+    const contentDiv = screen.getByRole("description", {
+      name: "Note Content",
+    });
+    fireEvent.click(contentDiv);
+
+    const textarea = screen.getByRole("textbox");
     expect(textarea).toBeInTheDocument();
-  
-    // Check for the cancel button when in edit mode
-    expect(screen.getByRole("button", { name: /cancel edit/i })).toBeInTheDocument();
-  
-    // Toggle back to view mode
-    fireEvent.click(screen.getByRole("button", { name: /cancel edit/i }));
-    
-    // Ensure the textarea is not present when exiting edit mode
-    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();  // Changed role to "textbox"
-  });
-  
-  
-
-  test("displays error message if saving an empty note", async () => {
-    render(<NoteEditor />);
-    fireEvent.click(screen.getByRole("button", { name: /edit/i }));
-    
-    // Clear the content and try to save
-    fireEvent.change(screen.getByRole("textbox"), { target: { value: "" } });
-    fireEvent.click(screen.getByRole("button", { name: /save/i }));
-
-    await waitFor(() => {
-      expect(screen.getByText("Please add some content to your note before saving.")).toBeInTheDocument();
-    });
+    expect(textarea).toHaveValue("Test note content");
   });
 
-  test("calls editNote function with new content when saved", async () => {
+  it("handles content change and autosaves after a delay", async () => {
     render(<NoteEditor />);
-    fireEvent.click(screen.getByRole("button", { name: /edit/i }));
 
-    // Change content
-    fireEvent.change(screen.getByRole("textbox"), { target: { value: "Updated note content." } });
-    fireEvent.click(screen.getByRole("button", { name: /save/i }));
+    fireEvent.click(screen.getByRole("description", { name: "Note Content" }));
 
-    await waitFor(() => {
-      expect(mockEditNote).toHaveBeenCalledWith("1", "Updated note content.");
-      expect(mockSetCurrentNote).toHaveBeenCalledWith({
-        id: "1",
-        content: "Updated note content.",
-      });
-    });
+    const textarea = screen.getByRole("textbox");
+    fireEvent.change(textarea, { target: { value: "Updated content" } });
+
+    await waitFor(() => expect(mockEditNote).not.toHaveBeenCalled()); // Ensure no immediate save
+
+    await waitFor(
+      () => expect(mockEditNote).toHaveBeenCalledWith("1", "Updated content"),
+      {
+        timeout: 2000, // Account for the debounce delay in autosave
+      }
+    );
   });
 
-  test("calls handleBack function when back button is clicked", () => {
+  it("returns to the main view when the back button is clicked", () => {
     render(<NoteEditor />);
-    fireEvent.click(screen.getByRole("button", { name: /← back/i }));
+
+    fireEvent.click(screen.getByText("← Back"));
     expect(mockSetCurrentNote).toHaveBeenCalledWith(null);
   });
 
-  test("does not render editor actions if currentNote is null", () => {
-    (useFolderContext as jest.Mock).mockReturnValue({
-      currentNote: null,
-      setCurrentNote: mockSetCurrentNote,
-      editNote: mockEditNote,
-    });
-
+  it("closes edit mode when the textarea loses focus", () => {
     render(<NoteEditor />);
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /save/i })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("description", { name: "Note Content" }));
+
+    const textarea = screen.getByRole("textbox");
+    fireEvent.blur(textarea);
+
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+  });
+
+  it("displays an autosaving message while saving", async () => {
+    render(<NoteEditor />);
+
+    fireEvent.click(screen.getByRole("description", { name: "Note Content" }));
+
+    const textarea = screen.getByRole("textbox");
+    fireEvent.change(textarea, { target: { value: "Updated content" } });
+    jest.runAllTimers();
+    await waitFor(() =>
+      expect(screen.getByText("Auto-saving...")).toBeInTheDocument()
+    );
+    await waitFor(() =>
+      expect(screen.queryByText("Auto-saving...")).not.toBeInTheDocument()
+    );
   });
 });

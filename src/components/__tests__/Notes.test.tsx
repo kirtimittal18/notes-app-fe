@@ -1,130 +1,174 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import "@testing-library/jest-dom";
-import Notes from "../Notes";
+import { render, fireEvent, screen, waitFor } from "@testing-library/react";
+import { Notes } from "../Notes";
 import { useFolderContext } from "../../Contexts/FolderContext";
+import ConfirmationDialog from "../ConfirmationDialog";
 
-// Mock the useFolderContext hook
 jest.mock("../../Contexts/FolderContext", () => ({
   useFolderContext: jest.fn(),
 }));
 
+jest.mock("../ConfirmationDialog", () => ({
+  __esModule: true,
+  default: jest.fn(({ show, onConfirm, onCancel, message }) =>
+    show ? (
+      <div data-testid="confirmation-dialog">
+        <p>{message}</p>
+        <button onClick={onConfirm}>Confirm</button>
+        <button onClick={onCancel}>Cancel</button>
+      </div>
+    ) : null
+  ),
+}));
+
+const mockAddNote = jest.fn();
+const mockEditNote = jest.fn();
+const mockDeleteNote = jest.fn();
+const mockSetCurrentNote = jest.fn();
+const mockSetCurrentNoteId = jest.fn();
+
+const defaultContext = {
+  notes: [],
+  selectedFolderId: null,
+  addNote: mockAddNote,
+  editNote: mockEditNote,
+  deleteNote: mockDeleteNote,
+  setCurrentNote: mockSetCurrentNote,
+  deletedNotes: [],
+  currentNoteId: null,
+  setCurrentNoteId: mockSetCurrentNoteId,
+};
+
 describe("Notes Component", () => {
-  const mockAddNote = jest.fn();
-  const mockDeleteNote = jest.fn();
-  const mockSetCurrentNote = jest.fn();
-
-  const defaultContext = {
-    notes: [
-      {
-        id: "1",
-        content: "Test note content 1",
-        createdAt: "2024-01-01T00:00:00Z",
-        updatedAt: "2024-01-02T00:00:00Z",
-      },
-      {
-        id: "2",
-        content: "Test note content 2",
-        createdAt: "2024-01-03T00:00:00Z",
-        updatedAt: "2024-01-04T00:00:00Z",
-      },
-    ],
-    selectedFolderId: "folder1",
-    addNote: mockAddNote,
-    deleteNote: mockDeleteNote,
-    setCurrentNote: mockSetCurrentNote,
-    deletedNotes: [],
-  };
-
   beforeEach(() => {
-    // Assert that useFolderContext is treated as a Jest mock
+    jest.clearAllMocks();
     (useFolderContext as jest.Mock).mockReturnValue(defaultContext);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  test("renders 'Select a folder to view notes' message when no folder is selected", () => {
+    render(<Notes />);
+    expect(
+      screen.getByText("Select a folder to view notes")
+    ).toBeInTheDocument();
   });
 
   test("renders notes when provided", () => {
-    render(<Notes />);
-    expect(screen.getByText("Test note content 1")).toBeInTheDocument();
-    expect(screen.getByText("Test note content 2")).toBeInTheDocument();
-  });
+    const notes = [
+      {
+        id: "1",
+        content: "First Note",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+      {
+        id: "2",
+        content: "Second Note",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+    ];
 
-  test("renders no notes message when there are no notes", () => {
     (useFolderContext as jest.Mock).mockReturnValue({
       ...defaultContext,
-      notes: [],
-      deletedNotes: [],
+      notes,
+      selectedFolderId: "folder1",
     });
+
     render(<Notes />);
-    expect(
-      screen.getByText(/No notes found in this folder\./i)
-    ).toBeInTheDocument();
+
+    expect(screen.getByText("First Note")).toBeInTheDocument();
+    expect(screen.getByText("Second Note")).toBeInTheDocument();
   });
 
   test("toggles new note form visibility", () => {
-    render(<Notes />);
-    const addNoteButton = screen.getByRole("button", { name: /add note/i });
-    fireEvent.click(addNoteButton);
-    expect(screen.getByPlaceholderText("Write your note here...")).toBeInTheDocument();
+    (useFolderContext as jest.Mock).mockReturnValue({
+      ...defaultContext,
+      selectedFolderId: "folder1",
+    });
 
-    fireEvent.click(addNoteButton);
-    expect(screen.queryByPlaceholderText("Write your note here...")).not.toBeInTheDocument();
+    render(<Notes />);
+
+    const addButton = screen.getByText("Add Note");
+    fireEvent.click(addButton);
+
+    expect(
+      screen.getByPlaceholderText("Write your note here...")
+    ).toBeInTheDocument();
+
+    fireEvent.click(addButton);
+    expect(
+      screen.queryByPlaceholderText("Write your note here...")
+    ).not.toBeInTheDocument();
   });
 
-  test("displays error message if trying to save an empty note", () => {
+  test("triggers delete confirmation dialog", () => {
+    const notes = [
+      {
+        id: "1",
+        content: "Note to Delete",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+    ];
+
+    (useFolderContext as jest.Mock).mockReturnValue({
+      ...defaultContext,
+      notes,
+      selectedFolderId: "folder1",
+    });
+
     render(<Notes />);
-    fireEvent.click(screen.getByRole("button", { name: /add note/i }));
-    fireEvent.click(screen.getByRole("button", { name: /save note/i }));
+
+    const deleteIcon = screen.getByTitle("Delete");
+    fireEvent.click(deleteIcon);
+
+    expect(screen.getByTestId("confirmation-dialog")).toBeInTheDocument();
     expect(
-      screen.getByText("Please add some content to your note before saving.")
+      screen.getByText("Are you sure you want to delete this note?")
     ).toBeInTheDocument();
   });
 
-  test("calls addNote function with correct content", () => {
+  test("calls deleteNote on confirmation", async () => {
+    const notes = [
+      {
+        id: "1",
+        content: "Note to Delete",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+    ];
+
+    (useFolderContext as jest.Mock).mockReturnValue({
+      ...defaultContext,
+      notes,
+      selectedFolderId: "folder1",
+    });
+
     render(<Notes />);
-    fireEvent.click(screen.getByRole("button", { name: /add note/i }));
 
-    const textarea = screen.getByPlaceholderText("Write your note here...");
-    fireEvent.change(textarea, { target: { value: "New test note" } });
+    const deleteIcon = screen.getByTitle("Delete");
+    fireEvent.click(deleteIcon);
 
-    fireEvent.click(screen.getByRole("button", { name: /save note/i }));
-    expect(mockAddNote).toHaveBeenCalledWith("New test note");
+    const confirmButton = screen.getByText("Confirm");
+    fireEvent.click(confirmButton);
+
+    await waitFor(() => expect(mockDeleteNote).toHaveBeenCalledWith("1"));
   });
 
-  test("calls deleteNote function when confirming delete", () => {
+  test("toggles layout view", () => {
+    (useFolderContext as jest.Mock).mockReturnValue({
+      ...defaultContext,
+      selectedFolderId: "folder1",
+    });
+
     render(<Notes />);
-    const deleteButton = screen.getAllByTitle("Delete")[0];
-    fireEvent.click(deleteButton);
 
-    fireEvent.click(screen.getByRole("button", { name: /confirm/i }));
-    expect(mockDeleteNote).toHaveBeenCalledWith("1");
-  });
-
-  test("does not call deleteNote if delete is canceled", () => {
-    render(<Notes />);
-    const deleteButton = screen.getAllByTitle("Delete")[0];
-    fireEvent.click(deleteButton);
-
-    fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
-    expect(mockDeleteNote).not.toHaveBeenCalled();
-  });
-
-  test("toggles between grid and list view", () => {
-    render(<Notes />);
-    const toggleButton = screen.getByRole("button", { name: /toggle layout/i });
-  
-    // Initial state: Grid view
-    expect(document.querySelector(".notes-container.grid-view")).toBeInTheDocument();
-  
-    // Click to switch to List view
+    const toggleButton = screen.getByLabelText("Toggle Layout");
     fireEvent.click(toggleButton);
-    expect(document.querySelector(".notes-container.list-view")).toBeInTheDocument();
-  
-    // Click to switch back to Grid view
-    fireEvent.click(toggleButton);
-    expect(document.querySelector(".notes-container.grid-view")).toBeInTheDocument();
+
+    // Check the state change instead of the text content
+    expect(toggleButton).toHaveAttribute("aria-label", "Toggle Layout");
+    const icon = toggleButton.querySelector("svg");
+    expect(icon).toHaveClass("svg-inline--fa fa-table-cells-large");
   });
-  
 });

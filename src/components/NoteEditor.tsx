@@ -28,30 +28,16 @@ const NoteEditor: React.FC = () => {
     [editNote]
   );
 
-   // Handle content changes
-   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  // Handle content changes
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const content = e.target.value;
     setEditContent(content);
-
     // Trigger autosave
     if (currentNote) {
       autosave(currentNote.id, content);
     }
   };
 
-
-  // Save the note after editing
-  const handleSave = async () => {
-    if (!editContent.trim()) {
-      setErrorMessage("Please add some content to your note before saving.");
-      return;
-    }
-    if (currentNote) {
-      await editNote(currentNote.id, editContent);
-      setCurrentNote({ ...currentNote, content: editContent });
-      setEditMode(false);
-    }
-  };
   useEffect(() => {
     if (currentNote) {
       setEditContent(currentNote.content); // Initialize content for editing
@@ -85,13 +71,13 @@ const NoteEditor: React.FC = () => {
         </button>
       </div>
 
-        {isSelected ? (
+      {isSelected ? (
         <div>
           {errorMessage && <div className="error-msg">{errorMessage}</div>}
           <textarea
-             value={editContent}
-             onBlur={() => setIsSelected(false)}
-             onChange={handleContentChange}
+            value={editContent}
+            onBlur={() => setIsSelected(false)}
+            onChange={handleContentChange}
             style={{
               width: "100%",
               height: "300px",
@@ -112,15 +98,17 @@ const NoteEditor: React.FC = () => {
             </div>
           )}
         </div>
-      ): (
+      ) : (
         <div
           className="note-content"
+          role="description"
+          aria-label="Note Content"
           onClick={() => setIsSelected(true)}
           style={{ whiteSpace: "pre-wrap", marginTop: "20px" }}
         >
           {currentNote && currentNote.content}
         </div>
-        )}
+      )}
     </div>
   );
 };
