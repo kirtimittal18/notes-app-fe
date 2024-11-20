@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTrash,
@@ -15,31 +15,49 @@ export const Notes: React.FC = ({}) => {
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false); // Control confirmation dialog visibility
   const [noteToDelete, setNoteToDelete] = useState<string | null>(null); // Track the note to delete
   const [errorMessage, setErrorMessage] = useState<string | null>(null); // Error message state
+  const [isSaving, setIsSaving] = useState<boolean>(false); // Track saving state
 
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null); // Ref for debounce timer
   const {
     notes,
     selectedFolderId,
     addNote,
+    editNote,
     deleteNote,
     setCurrentNote,
     deletedNotes,
+    currentNoteId,
+    setCurrentNoteId
   } = useFolderContext();
-
+  const textAreaRef = useRef<HTMLDivElement>(null);
   const dateOptions: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   };
 
-  // Function to handle adding a new note
-  const handleAddNote = async () => {
-    if (!newNoteContent.trim()) {
-      setErrorMessage("Please add some content to your note before saving."); // Set error message
-      return; // Don't add a note if content is empty
+  const autoSave = async () => {
+    if (!newNoteContent.trim()) return;
+
+    setIsSaving(true);
+
+    if (currentNoteId) {
+      await editNote(currentNoteId, newNoteContent); // Update existing note
+    } else {
+      await addNote(newNoteContent); // Save as a new note
     }
-    await addNote(newNoteContent);
-    setNewNoteContent("");
-    setShowNewNoteForm(false);
+
+    setIsSaving(false);
+  };
+
+  const handleNoteContentChange = (content: string) => {
+    setNewNoteContent(content);
+
+    // Debounce the auto-save
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      autoSave();
+    }, 2000); // Delay of 1 second
   };
 
   // Handle deleting a note
@@ -54,8 +72,35 @@ export const Notes: React.FC = ({}) => {
     if (noteToDelete) {
       await deleteNote(noteToDelete);
       setShowConfirmDialog(false);
+      setShowNewNoteForm(false);
+      setNewNoteContent("")
     }
   };
+
+  const handleAddAction = async () =>{
+   setShowNewNoteForm(!showNewNoteForm);
+   setNewNoteContent("");
+   setCurrentNoteId(null);
+  }
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (textAreaRef.current && !textAreaRef.current.contains(event.target as Node)) {
+      setShowNewNoteForm(false);
+      setErrorMessage(null); // Clear any error messages
+    }
+  };
+
+  useEffect(() => {
+    if (showNewNoteForm) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showNewNoteForm]);
 
   const handleViewNote = (note: Note) => {
     setCurrentNote(note); // Navigate to the note editor view
@@ -128,9 +173,9 @@ export const Notes: React.FC = ({}) => {
               className={`btn ${
                 showNewNoteForm ? "btn-secondary" : "btn-primary"
               } me-2`}
-              onClick={() => setShowNewNoteForm(!showNewNoteForm)}
+              onClick={handleAddAction}
             >
-              {showNewNoteForm ? "Cancel" : "Add Note"}
+              {showNewNoteForm ? "Close" : "Add Note"}
             </button>
           )}
           <button
@@ -144,18 +189,25 @@ export const Notes: React.FC = ({}) => {
       </div>}
 
       {showNewNoteForm && (
-        <div className="new-note-box mb-4">
+        <div ref={textAreaRef} className="new-note-box mb-4">
           {errorMessage && <div className="error-msg">{errorMessage}</div>}
           <textarea
-            placeholder="Write your note here..."
-            value={newNoteContent}
-            onChange={(e) => setNewNoteContent(e.target.value)}
+             placeholder="Write your note here..."
+             value={newNoteContent}
+             onChange={(e) => handleNoteContentChange(e.target.value)}
           />
-          <div className="form-actions d-flex justify-content-end">
-            <button className="btn btn-success" onClick={handleAddNote}>
-              Save Note
-            </button>
-          </div>
+          {isSaving && (
+            <div
+              style={{
+                marginTop: "5px",
+                fontSize: "14px",
+                fontStyle: "italic",
+                color: "gray",
+              }}
+            >
+              Auto-saving...
+            </div>
+          )}
         </div>
       )}
       {!selectedFolderId && !deletedNotes?.length && (
