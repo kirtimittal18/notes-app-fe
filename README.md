@@ -38,7 +38,7 @@ Select a note and choose a target folder from the dropdown menu.
 Click the delete button next to a note to remove it.
 
 ## Project Structure
-
+```
 src/
 ├── components/                         # UI components
 │   ├── Notes.tsx                       # Displays notes
@@ -50,7 +50,7 @@ src/
 ├── App.tsx              # Main application file
 ├── index.tsx            # Entry point
 ├── App.css              # Styling
-
+```
 
 # 🧪 Unit Testing (Jest)
 1. Install Jest:
