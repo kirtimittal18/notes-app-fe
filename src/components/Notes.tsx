@@ -9,7 +9,7 @@ import ConfirmationDialog from "./ConfirmationDialog"; // Import the dialog
 import { Note, useFolderContext } from "../Contexts/FolderContext";
 
 export const Notes: React.FC = ({}) => {
-  const [newNoteContent, setNewNoteContent] = useState<string>(""); // New note content
+  const [newNoteContent, setNewNoteContent] = useState<string>("");
   const [showNewNoteForm, setShowNewNoteForm] = useState<boolean>(false); // Toggle new note form
   const [isGridView, setIsGridView] = useState<boolean>(true); // Track if in grid or list view
   const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false); // Control confirmation dialog visibility
@@ -27,7 +27,7 @@ export const Notes: React.FC = ({}) => {
     setCurrentNote,
     deletedNotes,
     currentNoteId,
-    setCurrentNoteId
+    setCurrentNoteId,
   } = useFolderContext();
   const textAreaRef = useRef<HTMLDivElement>(null);
   const dateOptions: Intl.DateTimeFormatOptions = {
@@ -73,18 +73,21 @@ export const Notes: React.FC = ({}) => {
       await deleteNote(noteToDelete);
       setShowConfirmDialog(false);
       setShowNewNoteForm(false);
-      setNewNoteContent("")
+      setNewNoteContent("");
     }
   };
 
-  const handleAddAction = async () =>{
-   setShowNewNoteForm(!showNewNoteForm);
-   setNewNoteContent("");
-   setCurrentNoteId(null);
-  }
+  const handleAddAction = async () => {
+    setShowNewNoteForm(!showNewNoteForm);
+    setNewNoteContent("");
+    setCurrentNoteId(null);
+  };
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (textAreaRef.current && !textAreaRef.current.contains(event.target as Node)) {
+    if (
+      textAreaRef.current &&
+      !textAreaRef.current.contains(event.target as Node)
+    ) {
       setShowNewNoteForm(false);
       setErrorMessage(null); // Clear any error messages
     }
@@ -165,36 +168,38 @@ export const Notes: React.FC = ({}) => {
   };
   return (
     <div className="notes-list">
-      {selectedFolderId && <div className="notes-header d-flex justify-content-between align-items-center mb-3">
-         <h3>Notes</h3>
-        <div className="notes-actions">
-          {selectedFolderId && (
+      {selectedFolderId && (
+        <div className="notes-header d-flex justify-content-between align-items-center mb-3">
+          <h3>Notes</h3>
+          <div className="notes-actions">
+            {selectedFolderId && (
+              <button
+                className={`btn ${
+                  showNewNoteForm ? "btn-secondary" : "btn-primary"
+                } me-2`}
+                onClick={handleAddAction}
+              >
+                {showNewNoteForm ? "Close" : "Add Note"}
+              </button>
+            )}
             <button
-              className={`btn ${
-                showNewNoteForm ? "btn-secondary" : "btn-primary"
-              } me-2`}
-              onClick={handleAddAction}
+              className="btn btn-outline-primary"
+              onClick={toggleLayout}
+              aria-label="Toggle Layout"
             >
-              {showNewNoteForm ? "Close" : "Add Note"}
+              <FontAwesomeIcon icon={isGridView ? faThList : faThLarge} />
             </button>
-          )}
-          <button
-            className="btn btn-outline-primary"
-            onClick={toggleLayout}
-            aria-label="Toggle Layout"
-          >
-            <FontAwesomeIcon icon={isGridView ? faThList : faThLarge} />
-          </button>
+          </div>
         </div>
-      </div>}
+      )}
 
       {showNewNoteForm && (
         <div ref={textAreaRef} className="new-note-box mb-4">
           {errorMessage && <div className="error-msg">{errorMessage}</div>}
           <textarea
-             placeholder="Write your note here..."
-             value={newNoteContent}
-             onChange={(e) => handleNoteContentChange(e.target.value)}
+            placeholder="Write your note here..."
+            value={newNoteContent}
+            onChange={(e) => handleNoteContentChange(e.target.value)}
           />
           {isSaving && (
             <div
@@ -215,7 +220,7 @@ export const Notes: React.FC = ({}) => {
           Select a folder to view notes
         </div>
       )}
-     {notes?.length ? (
+      {notes?.length ? (
         renderNotes(notes)
       ) : selectedFolderId ? (
         <div className="d-flex justify-content-center align-items-center no-notes-message">
