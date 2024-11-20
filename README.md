@@ -19,11 +19,11 @@ A simple ReactJS app to manage user notes. Users can list notes, create folders,
    git clone https://github.com/kirtimittal/notes-app.git
    cd notes-app-fe
 2. Install Dependencies
-   npm install
+   ```npm install```
 3. Start the development server:
-   npm start
+   ```npm start```
 4. Open the app in your browser:
-   http://localhost:3000
+   ```http://localhost:3000```
    
 
 ## Usage
