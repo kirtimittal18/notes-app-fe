@@ -1,11 +1,11 @@
 import React from "react";
 import { render, fireEvent, screen, waitFor } from "@testing-library/react";
 import { Notes } from "../Notes";
-import { useFolderContext } from "../../Contexts/FolderContext";
+import { useAppContext } from "../../Contexts/AppContext";
 import ConfirmationDialog from "../ConfirmationDialog";
 
-jest.mock("../../Contexts/FolderContext", () => ({
-  useFolderContext: jest.fn(),
+jest.mock("../../Contexts/AppContext", () => ({
+  useAppContext: jest.fn(),
 }));
 
 jest.mock("../ConfirmationDialog", () => ({
@@ -42,7 +42,7 @@ const defaultContext = {
 describe("Notes Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useFolderContext as jest.Mock).mockReturnValue(defaultContext);
+    (useAppContext as jest.Mock).mockReturnValue(defaultContext);
   });
 
   test("renders 'Select a folder to view notes' message when no folder is selected", () => {
@@ -68,7 +68,7 @@ describe("Notes Component", () => {
       },
     ];
 
-    (useFolderContext as jest.Mock).mockReturnValue({
+    (useAppContext as jest.Mock).mockReturnValue({
       ...defaultContext,
       notes,
       selectedFolderId: "folder1",
@@ -81,7 +81,7 @@ describe("Notes Component", () => {
   });
 
   test("toggles new note form visibility", () => {
-    (useFolderContext as jest.Mock).mockReturnValue({
+    (useAppContext as jest.Mock).mockReturnValue({
       ...defaultContext,
       selectedFolderId: "folder1",
     });
@@ -111,7 +111,7 @@ describe("Notes Component", () => {
       },
     ];
 
-    (useFolderContext as jest.Mock).mockReturnValue({
+    (useAppContext as jest.Mock).mockReturnValue({
       ...defaultContext,
       notes,
       selectedFolderId: "folder1",
@@ -138,7 +138,7 @@ describe("Notes Component", () => {
       },
     ];
 
-    (useFolderContext as jest.Mock).mockReturnValue({
+    (useAppContext as jest.Mock).mockReturnValue({
       ...defaultContext,
       notes,
       selectedFolderId: "folder1",
@@ -156,7 +156,7 @@ describe("Notes Component", () => {
   });
 
   test("toggles layout view", () => {
-    (useFolderContext as jest.Mock).mockReturnValue({
+    (useAppContext as jest.Mock).mockReturnValue({
       ...defaultContext,
       selectedFolderId: "folder1",
     });

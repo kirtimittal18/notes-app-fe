@@ -1,10 +1,10 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import NoteEditor from "../NoteEditor";
-import { useFolderContext } from "../../Contexts/FolderContext";
+import { useAppContext } from "../../Contexts/AppContext";
 
-jest.mock("../../Contexts/FolderContext", () => ({
-  useFolderContext: jest.fn(),
+jest.mock("../../Contexts/AppContext", () => ({
+  useAppContext: jest.fn(),
 }));
 
 describe("NoteEditor", () => {
@@ -21,10 +21,10 @@ describe("NoteEditor", () => {
     editNote: mockEditNote,
   };
 
-  // Mock the useFolderContext hook
+  // Mock the useAppContext hook
   beforeEach(() => {
-    // Assert that useFolderContext is treated as a Jest mock
-    (useFolderContext as jest.Mock).mockReturnValue(defaultContext);
+    // Assert that useAppContext is treated as a Jest mock
+    (useAppContext as jest.Mock).mockReturnValue(defaultContext);
   });
 
   afterEach(() => {

@@ -23,7 +23,7 @@ interface Folder {
   parentFolderId: number;
 }
 
-interface FolderContextType {
+interface AppContextType {
   folders: Folder[];
   deletedNotes: Note[] | null;
   selectedFolderId: string | null;
@@ -46,17 +46,17 @@ interface FolderContextType {
   setDeletedNotes: (notes: Note[] | null) => void;
 }
 
-const FolderContext = createContext<FolderContextType | undefined>(undefined);
+const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export const useFolderContext = () => {
-  const context = useContext(FolderContext);
+export const useAppContext = () => {
+  const context = useContext(AppContext);
   if (!context) {
-    throw new Error("useFolderContext must be used within a FolderProvider");
+    throw new Error("useAppContext must be used within a AppProvider");
   }
   return context;
 };
 
-export const FolderProvider: React.FC<{ children: ReactNode }> = ({
+export const AppProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -108,8 +108,6 @@ export const FolderProvider: React.FC<{ children: ReactNode }> = ({
     try {
       if (folderId) {
         await axios.delete(`/api/folders/${selectedFolderId}`);
-        //   setFolders(folders.filter((folder) => folder.id !== selectedFolderId));
-        //   setSelectedFolderId(null);
         setFolders((prevFolders) =>
           prevFolders.filter((folder) => folder.id !== folderId)
         );
@@ -228,7 +226,7 @@ export const FolderProvider: React.FC<{ children: ReactNode }> = ({
   }, [selectedFolderId]);
 
   return (
-    <FolderContext.Provider
+    <AppContext.Provider
       value={{
         folders,
         selectedFolderId,
@@ -253,14 +251,14 @@ export const FolderProvider: React.FC<{ children: ReactNode }> = ({
       }}
     >
       {children}
-    </FolderContext.Provider>
+    </AppContext.Provider>
   );
 };
 
 export const useFolders = () => {
-  const context = useFolderContext();
+  const context = useAppContext();
   if (!context) {
-    throw new Error("useFolders must be used within a FolderProvider");
+    throw new Error("useFolders must be used within a AppProvider");
   }
   return context;
 };

@@ -1,12 +1,12 @@
 import React from "react";
 import { render, fireEvent, screen, waitFor } from "@testing-library/react";
 import Sidebar from "../Sidebar";
-import { useFolderContext } from "../../Contexts/FolderContext";
+import { useAppContext } from "../../Contexts/AppContext";
 import { Folder } from "../../types";
 
-// Mock useFolderContext
-jest.mock("../../Contexts/FolderContext", () => ({
-  useFolderContext: jest.fn(),
+// Mock useAppContext
+jest.mock("../../Contexts/AppContext", () => ({
+  useAppContext: jest.fn(),
 }));
 
 describe("Sidebar Component", () => {
@@ -31,7 +31,7 @@ describe("Sidebar Component", () => {
   };
 
   beforeEach(() => {
-    (useFolderContext as jest.Mock).mockReturnValue(mockContext);
+    (useAppContext as jest.Mock).mockReturnValue(mockContext);
   });
 
   afterEach(() => {
@@ -57,7 +57,7 @@ describe("Sidebar Component", () => {
   });
 
   test("renames a folder", async () => {
-    (useFolderContext as jest.Mock).mockReturnValue({
+    (useAppContext as jest.Mock).mockReturnValue({
       ...mockContext,
       editingFolderId: "1",
     });
@@ -83,7 +83,7 @@ describe("Sidebar Component", () => {
   });
 
   test("disables delete button when no folder is selected", () => {
-    (useFolderContext as jest.Mock).mockReturnValue({
+    (useAppContext as jest.Mock).mockReturnValue({
       ...mockContext,
       selectedFolderId: null,
     });

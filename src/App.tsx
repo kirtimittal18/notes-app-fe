@@ -5,12 +5,12 @@ import Notes from "./components/Notes";
 import "./App.css";
 import NoteEditor from "./components/NoteEditor";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FolderProvider } from "./Contexts/FolderContext";
-import { useFolderContext } from './Contexts/FolderContext'; // Import context to use in a child component
+import { AppProvider } from "./Contexts/AppContext";
+import { useAppContext } from './Contexts/AppContext'; // Import context to use in a child component
 
 
 const ContentArea: React.FC = () => {
-  const { currentNote } = useFolderContext(); // Access context here
+  const { currentNote } = useAppContext(); // Access context here
 
   return (
       <>
@@ -32,12 +32,12 @@ const ContentArea: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <FolderProvider>
+    <AppProvider>
       <div className="app-container">
         <Sidebar />
         <ContentArea />
       </div>
-    </FolderProvider>
+    </AppProvider>
   );
 };
 

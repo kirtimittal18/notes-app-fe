@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useFolderContext } from "../Contexts/FolderContext";
+import { useAppContext } from "../Contexts/AppContext";
 
 const NoteEditor: React.FC = () => {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editContent, setEditContent] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null); // Error message state
-  const { currentNote, setCurrentNote, editNote } = useFolderContext();
+  const { currentNote, setCurrentNote, editNote } = useAppContext();
   const [isAutosaving, setIsAutosaving] = useState<boolean>(false);
   const [isSelected, setIsSelected] = useState(false);
   const autosave = useCallback(
@@ -113,4 +113,4 @@ const NoteEditor: React.FC = () => {
   );
 };
 
-export default NoteEditor;
+export default React.memo(NoteEditor);
