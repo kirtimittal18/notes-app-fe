@@ -21,12 +21,12 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
       </Modal.Header>
       <Modal.Body>{message}</Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onCancel}>
+        <button className={`button me-2 cancel-btn`} onClick={onCancel}>
           Cancel
-        </Button>
-        <Button variant="danger" onClick={onConfirm}>
+        </button>
+        <button className={`button me-2`} onClick={onConfirm}>
           Confirm
-        </Button>
+        </button>
       </Modal.Footer>
     </Modal>
   );

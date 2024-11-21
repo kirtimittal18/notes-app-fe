@@ -38,10 +38,17 @@
   padding: 1rem;
 }
 
+.divider {
+  width: 100%;
+  border-bottom: 2px solid black;
+}
+
 .notes-container .note-meta > span {
-  background-color: #0d6efd;
+  background-color: white;
   padding: 6px 10px;
+  color: black;
   border-radius: 0.4rem;
+  margin: 0 8px;
 }
 
 .notes-container.list-view.note-meta {
@@ -190,23 +197,29 @@
 .folder-link {
   display: block;
   padding: 10px 15px;
-  color: #333;
+  color: white;
   text-decoration: none;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .folder-link:hover {
-  background-color: #f0f0f0; /* Light gray on hover */
-  color: #000; /* Darker text on hover */
+  background-color: white;
+  color: black !important;
 }
+
+.folder-link:hover * {
+  color: black
+}
+
 
 /* Active/selected state */
 .folder-link.selected:hover {
-  background-color: #0062cc; /* Slightly darker blue on hover */
+  background-color: white; /* Slightly darker blue on hover */
 }
 
 .notes-list {
   padding: 20px;
+  background-color: #e6f2ff;
   font-family: Arial, sans-serif;
   width: 100%; /* Ensure the notes list takes full width */
   box-sizing: border-box; /* Include padding in the element's total width */
@@ -288,8 +301,8 @@
 
 .note-actions {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 17px;
+  right: 17px;
   display: flex;
   gap: 10px;
 }
@@ -305,7 +318,7 @@
 }
 
 .delete-icon {
-  color: #999;
+  color: white;
 }
 
 .note-edit textarea {
@@ -401,7 +414,8 @@ button:disabled {
 }
 
 .back-button {
-  background-color: #007bff;
+  background-color: #003366;
+  margin: 10px;
 }
 
 .save-note {
@@ -415,30 +429,26 @@ button:disabled {
 
 .folder-item .folder-link {
   text-decoration: none;
-  color: #333;
+  color: white;
   padding: 10px 15px; /* Added padding for entire folder item */
   display: block;
   border-radius: 8px;
   transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.folder-item .folder-link:hover {
-  background-color: #e0e0e0;
+/* .folder-item .folder-link:hover {
+  background-color: white;
   color: #000;
-}
+} */
 
 /* Selected folder style */
 .folder-item .selected {
-  background-color: #999;
-  color: #fff;
+  background-color: white;
+  color: black;
   font-weight: bold;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds a slight shadow */
   padding-left: 15px; /* Ensures padding covers the entire element */
-}
-
-.folder-item .selected:hover {
-  background-color: #7b7878; /* Darken on hover */
 }
 
 /* Folder icon and text spacing */
@@ -496,7 +506,6 @@ button:disabled {
 
 /* Sidebar Header */
 .sidebar-header {
-  color: #343a40;
   padding: 10px;
   text-align: center;
   font-size: 1.25rem;
@@ -506,6 +515,11 @@ button:disabled {
   justify-content: space-between;
   align-items: center;
 }
+
+.sidebar-header * {
+  color: white
+}
+
 .sidebar-header h2 {
   margin: 0;
   font-size: 1.5rem;
@@ -529,6 +543,10 @@ ul {
   margin-bottom: 5px;
 }
 
+.folder-item svg {
+  color: white
+}
+
 /* Indentation for subfolders */
 .subfolders {
   padding-left: 20px; /* Indent subfolders */
@@ -550,10 +568,6 @@ ul {
   border-radius: 5px;
 }
 
-.folder-link:hover {
-  background-color: #e9ecef; /* Light hover effect */
-  color: #343a40;
-}
 
 .select-folder-message {
   display: flex;
@@ -572,9 +586,9 @@ ul {
 
 /* Rename Icon */
 .rename-icon {
-  color: #adb5bd;
+  color: #007bff;
   cursor: pointer;
-  margin-left: 10px;
+  margin-left: 26px;
 }
 
 .rename-icon:hover {
@@ -635,12 +649,6 @@ ul {
   }
 } */
 
-/* Folder Item Hover */
-.folder-item:hover {
-  background-color: #e9ecef;
-  border-radius: 5px;
-}
-
 .error-msg {
   color: red;
   margin-bottom: 10px;
@@ -690,14 +698,14 @@ ul {
 }
 
 .note-card {
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 2rem;
+  background-color: #003366;
+  border-radius: 19px;
+  padding: 2.8rem;
   transition: box-shadow 0.3s;
   /* box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px; */
   display: flex;
   flex-direction: column;
+  color: white;
   position: relative;
 }
 
@@ -705,14 +713,22 @@ ul {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
-.btn {
+.button {
   font-size: 1rem;
+  background-color: #003366;
+  color: white;
+  border-radius: 10px;
 }
 
-.btn-outline-primary {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+.btn-primary{
+  font-size: 1rem;
+  background-color: #003366;
+  color: white;
+  border-radius: 10px;
+}
+
+.cancel-btn{
+  background-color: #a6a6a6;
 }
 
 .list-folder-items {
@@ -723,13 +739,15 @@ ul {
   min-width: 250px; /* Minimum width for the sidebar */
   max-width: 350px; /* Maximum width for the sidebar */
   height: 100vh; /* Full height */
-  background-color: #f8f9fa; /* Light background */
+  background-color: #003366; /* Light background */
   padding: 20px;
+  color: white;
   border-right: 1px solid #dee2e6; /* Right border */
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Shadow for depth */
   overflow-y: auto; /* Enable scrolling if content overflows */
   transition: transform 0.3s ease; /* Smooth transition for hiding/showing */
 }
+
 
 /* Hide sidebar off-screen */
 .sidebar.hidden {

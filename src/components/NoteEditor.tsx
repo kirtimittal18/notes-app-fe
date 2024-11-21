@@ -62,10 +62,10 @@ const NoteEditor: React.FC = () => {
         className="note-editor-header"
         style={{
           display: "flex",
-          justifyContent: "flex-end",
           alignItems: "center",
         }}
       >
+        <h3>Note Details</h3>
         <button onClick={handleBack} className="back-button">
           ← Back
         </button>

@@ -169,21 +169,19 @@ export const Notes: React.FC = ({}) => {
   return (
     <div className="notes-list">
       {selectedFolderId && (
-        <div className="notes-header d-flex justify-content-between align-items-center mb-3">
+        <div className="notes-header d-flex justify-content-between align-items-center">
           <h3>Notes</h3>
           <div className="notes-actions">
             {selectedFolderId && (
               <button
-                className={`btn ${
-                  showNewNoteForm ? "btn-secondary" : "btn-primary"
-                } me-2`}
+                className={`button me-2`}
                 onClick={handleAddAction}
               >
                 {showNewNoteForm ? "Close" : "Add Note"}
               </button>
             )}
             <button
-              className="btn btn-outline-primary"
+              className={`button me-2`}
               onClick={toggleLayout}
               aria-label="Toggle Layout"
             >
@@ -192,6 +190,8 @@ export const Notes: React.FC = ({}) => {
           </div>
         </div>
       )}
+
+      {selectedFolderId ? <div className="mb-3 divider"/> : null}
 
       {showNewNoteForm && (
         <div ref={textAreaRef} className="new-note-box mb-4">
