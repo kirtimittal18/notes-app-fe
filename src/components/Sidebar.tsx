@@ -7,7 +7,7 @@ import {
   faRecycle,
 } from "@fortawesome/free-solid-svg-icons";
 import { Folder } from "../types";
-import { useFolderContext } from "../Contexts/FolderContext";
+import { useAppContext } from "../Contexts/AppContext";
 
 const Sidebar: React.FC = ({}) => {
   const {
@@ -23,7 +23,7 @@ const Sidebar: React.FC = ({}) => {
     deleteFolder,
     setCurrentNote,
     moveNote
-  } = useFolderContext();
+  } = useAppContext();
   const [newFolderName, setNewFolderName] = useState("");
   const handleDragOver = (e: React.DragEvent<HTMLLIElement>) => {
     e.preventDefault(); // Allow the drop

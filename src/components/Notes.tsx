@@ -6,7 +6,7 @@ import {
   faThLarge,
 } from "@fortawesome/free-solid-svg-icons";
 import ConfirmationDialog from "./ConfirmationDialog"; // Import the dialog
-import { Note, useFolderContext } from "../Contexts/FolderContext";
+import { Note, useAppContext } from "../Contexts/AppContext";
 
 export const Notes: React.FC = ({}) => {
   const [newNoteContent, setNewNoteContent] = useState<string>("");
@@ -28,7 +28,7 @@ export const Notes: React.FC = ({}) => {
     deletedNotes,
     currentNoteId,
     setCurrentNoteId,
-  } = useFolderContext();
+  } = useAppContext();
   const textAreaRef = useRef<HTMLDivElement>(null);
   const dateOptions: Intl.DateTimeFormatOptions = {
     year: "numeric",
