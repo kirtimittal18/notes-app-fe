@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTrash,
@@ -112,6 +112,30 @@ export const Notes: React.FC = ({}) => {
   const toggleLayout = () => {
     setIsGridView(!isGridView);
   };
+  const newNoteForm = useMemo(() => (
+    showNewNoteForm && (
+      <div ref={textAreaRef} className="new-note-box mb-4">
+        {errorMessage && <div className="error-msg">{errorMessage}</div>}
+        <textarea
+          placeholder="Write your note here..."
+          value={newNoteContent}
+          onChange={(e) => handleNoteContentChange(e.target.value)}
+        />
+        {isSaving && (
+          <div
+            style={{
+              marginTop: "5px",
+              fontSize: "14px",
+              fontStyle: "italic",
+              color: "gray",
+            }}
+          >
+            Auto-saving...
+          </div>
+        )}
+      </div>
+    )
+  ), [showNewNoteForm, newNoteContent, isSaving, errorMessage]);
 
   const renderNotes = (data: Note[]) => {
     return data.length > 0 ? (
@@ -193,28 +217,7 @@ export const Notes: React.FC = ({}) => {
 
       {selectedFolderId ? <div className="mb-3 divider"/> : null}
 
-      {showNewNoteForm && (
-        <div ref={textAreaRef} className="new-note-box mb-4">
-          {errorMessage && <div className="error-msg">{errorMessage}</div>}
-          <textarea
-            placeholder="Write your note here..."
-            value={newNoteContent}
-            onChange={(e) => handleNoteContentChange(e.target.value)}
-          />
-          {isSaving && (
-            <div
-              style={{
-                marginTop: "5px",
-                fontSize: "14px",
-                fontStyle: "italic",
-                color: "gray",
-              }}
-            >
-              Auto-saving...
-            </div>
-          )}
-        </div>
-      )}
+      {newNoteForm}
       {!selectedFolderId && !deletedNotes?.length && (
         <div className="select-folder-message">
           Select a folder to view notes
